@@ -1,7 +1,7 @@
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#PURPOSE: This script generates tabular data for fine fuel loading from
-#FDM FCCS secondary maps (primary are the fuelbed maps, seconday are the fuelbed
+#PURPOSE: This script analyzes patterns in simulated total aboveground loading for
+#FDM secondary output maps (primary are the fuelbed maps, seconday are the fuelbed
 #derivative maps)
 
 #1) 125% of current -- 125k acres prescribed burned/year
@@ -25,20 +25,13 @@
 #Libraries
 library(raster)
 
-#Name of external drive
-ed <- "E"
-
-#Which computer are you using
-#Dell desktop (1) or USFS laptop (2)
-comp <- "C:/Users/jcron/"
-#comp <- "C:/Users/jcronan/OneDrive - USDA/"
 
 #################################################################################################
 #################################################################################################
 #DATA INPUTS
 
 #################################################################################################
-setwd(paste(ed, ":/FDM_2023_Simulation_Data/Step_02_Fuelbed_Derivative_Maps/maps", sep = ""))
+setwd(paste("E:/FDM_2023_Simulation_Data/Step_02_Fuelbed_Derivative_Maps/maps", sep = ""))
 
 #Import a single raster file to use header data to reference number of columns for matrix(scan())
 f.head <- raster("t050_01_00.asc")
@@ -54,28 +47,29 @@ intervals <- c("05", as.character(seq(10,50,5)))
 
 #Input file pre-fix
 prefix_in <- "t"
-prefix_name <- "fine_fuels"
+prefix_name <- "total_fine_fuels"
 
 #Open the map with prescribed fire burn units. This is needed to remove the buffer zone from the analysis area
 #Buffer zone is labeled as "burn unit" "8888".
-setwd(paste(comp, "Documents/GitHub/EglinAirForceBase/inputs", sep = ""))
+setwd(paste("C:/Users/jcron/Documents/GitHub/EglinAirForceBase/inputs", sep = ""))
 unit_map <- matrix(scan("sef_bmap_1771x3491.txt", skip = f.head@file@offset),ncol=f.head@ncols,byrow=T)
 
-setwd(paste(ed, ":/FDM_2023_Simulation_Data/Step_01_FDM_Outputs/fuelbed_maps_step_1b_short_file_names", sep = ""))
+setwd(paste("E:/FDM_2023_Simulation_Data/Step_01_FDM_Outputs/fuelbed_maps_step_1b_short_file_names", sep = ""))
 fuelbed_map <- matrix(scan("f_050_001_05.asc", skip = f.head@file@offset),ncol=f.head@ncols,byrow=T)
 
 #Reset working directory
-setwd(paste(ed, ":/FDM_2023_Simulation_Data/Step_02_Fuelbed_Derivative_Maps/maps", sep = ""))
+setwd(paste("E:/FDM_2023_Simulation_Data/Step_02_Fuelbed_Derivative_Maps/maps", sep = ""))
 
 #Create a list to accespt outputs
-fineFuels_data <- list()
+derivative_data <- list()
 
 #Set up a nested loop to process all simulation maps (cannot import all of them at once, there are too many (400 maps).
-for(a in 1:length(rx_fire))
-{
-  for(b in 1:length(run_number))
-  {
-    
+#for(a in 1:length(rx_fire))
+#{
+#  for(b in 1:length(run_number))
+#  {
+    a <- 1
+    b <- 1
     #Create a list to hold file namnes
     filenames_in <- vector()
     
@@ -95,60 +89,52 @@ for(a in 1:length(rx_fire))
     }
     
     #Identify the cell with the highest fine fuel load.
-    max_load <- vector()
+    max_value <- vector()
     for(i in 1:length(maps_in))
       {
-      max_load[i] <- max(as.vector(maps_in[[i]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000)]))
+      max_value[i] <- max(as.vector(maps_in[[i]][unit_map != 8888 & fuelbed_map != -9999]))
       }
-    ff_limit <- round(max(max_load)+1,0)
+    d_limit <- round(max(max_value)+1,0)
     
     #################################################################################################
     #Set up matrix to hold fine fuel load values
-    fineFuels_matrix <- matrix(nrow = length(maps_in), ncol = ff_limit)
+    derivative_matrix <- matrix(nrow = length(maps_in), ncol = d_limit)
     
       for(n in 1:length(maps_in))
         {
-        for(o in 1:ff_limit)
+        for(o in 1:(d_limit/10))
         {
-          fineFuels_matrix[n,o] <- length(maps_in[[n]][!unit_map %in% c(-9999, 8888)  & !fuelbed_map %in% c(5099000, 6000000) & maps_in[[n]] > (o-1) & maps_in[[n]] <= o])
+          derivative_matrix[n,o] <- length(maps_in[[n]][unit_map != 8888  & !fuelbed_map %in% c(-9999, 5099000, 6000000) & maps_in[[n]] > ((o*10)-10) & maps_in[[n]] <= (o*10)])
         }
       }
-    fineFuels_data[[1+length(fineFuels_data)]] <- fineFuels_matrix
+    derivative_data[[1+length(derivative_data)]] <- derivative_matrix
     rm(maps_in)
     rm(filenames_in)
     print(paste("Rx_fire", rx_fire[a], "Run", run_number[b], sep = " "))
-  }
-}
+#  }
+#}
 
 
 #Create a spreadsheet from list
-ffm <- matrix()
-for(i in 1:length(fineFuels_data))
+dm <- matrix()
+for(i in 1:length(derivative_data))
 {
   if(i == 1)
   {
-    ffm <- fineFuels_data[[i]]
+    dm <- derivative_data[[i]]
   } else
   {
-    ffm <- rbind(ffm, fineFuels_data[[i]])
+    dm <- rbind(dm, derivative_data[[i]])
   }
 }
 
 df <- expand.grid(seq(0,50,5), 1:10, c(50,75,100,125))
-#df <- expand.grid(seq(0,50,5), 1:10)
-
-ffdf <- data.frame(rx_fire = df$Var3,
+ddf <- data.frame(rx_fire = df$Var3,
                    run_no = df$Var2,
                    sim_yr = df$Var1)
-#ffdf <- data.frame(run_no = df$Var2,
-#                   sim_yr = df$Var1)
 
+derivative_df <- cbind(ddf, dm)
 
-derivative_df <- cbind(ffdf, ffm)
-
-setwd(paste(ed, ":/FDM_2023_Simulation_Data/Step_05_Derivative_Tables", sep = ""))
-write.csv(derivative_df, file = paste("v5_Derivative_table_", prefix_name, ".csv", sep = ""),
+setwd("E:/FDM_2023_Simulation_Data/Step_05_Derivative_Tables")
+write.csv(derivative_df, file = paste("v2_Derivative_table_", prefix_name, ".csv", sep = ""),
            row.names = FALSE)#
-
-#####################################################################################################
-#END
