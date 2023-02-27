@@ -21,27 +21,33 @@ library(fields)#for set.panel()
 #Which computer are you using?
 #USFS
 usfs <- "C:/Users/jcronan/OneDrive - USDA/"
+pers <- "C:/Users/james/"
 
 #Set working directory
-setwd(paste(usfs, "Documents/FDM_2023_Simulation_Data/Step_02c_Disturbance_Summary_Table", sep = ""))
+setwd(paste(pers, "Documents/FDM_2023_Simulation_Data/Step_02c_Disturbance_Summary_Table", sep = ""))
 
 #Open data
 st <- read.csv("disturbance_summary_table.csv", header=TRUE, 
                sep=",", na.strings="NA", dec=".", strip.white=TRUE)
 
+#Convert rx fire scenarios to hectares (from acres)
+st$scenario[st$scenario == 50] <- 20
+st$scenario[st$scenario == 75] <- 30
+st$scenario[st$scenario == 100] <- 40
+st$scenario[st$scenario == 125] <- 50
+
 #Set up loop to cycle through all simulation feeds.
-scenario <- c(50,75,100,125)
+scenario <- c(20,30,40,50)
 run <- 1:10
 sim_years <- 1:50
 
 #Set up inputs for plotting
 dev.off()
 
+#Set colors for each scenario
+ct <- as.character(c("blue", "green", "red", "pink"))
 
-ct <- as.character(c("blue", "green", "orange", "pink"))
-options(scipen = 999)
-d_cols <- c(7,8,9,10)
-
+#Generate panes for plots
 tfi <- layout(matrix(c(1,2,3,1,4,5,6,7,7),3,3,byrow=TRUE), 
               c(1,17.5,17.5), c(12.8,12.8,1.0),
               TRUE)
@@ -51,7 +57,7 @@ tp <- 0.95 #Percent from top
 #Box 1 - "y axis"
 par(mar=c(0,0,0,0),cex=1,family="serif")
 plot(1,1,pch=1,col="white",xlim=c(0,2),ylim=c(0,10),xaxt="n",yaxt="n",bty="n")
-text(1,5,"Disturbance area (x1000 ha)", pos=3, srt=90)
+text(1,5,"Disturbance area (1000s of hectares)", pos=3, srt=90)
 
 #Box 2 - Prescribed fire
 par(tcl=-0.5, family="serif", mai=c(0.3,0.5,0.3,0.3))
@@ -113,9 +119,9 @@ for(a in 1:length(scenario))
     if(a == 1 & b == 1)
     {
       plot(st$sim_year[st$run == b & st$scenario == scenario[a]], svr[st$run == b & st$scenario == scenario[a]], type = "l", col = lc, 
-           ylim = c(1.6, 2.8), ylab = "", yaxt = "n")
-      axis(2, at = c(1.6, 2.0, 2.4, 2.8))
-      text(1, (2.8 * tp), "C)")
+           ylim = c(1.8, 3.0), ylab = "", yaxt = "n")
+      axis(2, at = c(1.8, 2.2, 2.6, 3.0))
+      text(1, (3.1 * tp), "C)")
     } else
     {
       lines(st$sim_year[st$run == b & st$scenario == scenario[a]], svr[st$run == b & st$scenario == scenario[a]], col = lc)
@@ -146,7 +152,9 @@ for(a in 1:length(scenario))
   }
 }
 
-legend(31,1.9, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "orange", "pink"), 
+legend(31,1.8, c(expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
+               expression("30k" ~ yr^-1), expression("50k" ~ yr^-1)), 
+       col = c("blue", "green", "red", "pink"), 
        lty = 1)
 
 #Box 6 - nothing
@@ -157,23 +165,12 @@ text(1,6,"",pos=3,srt=90)
 #Box 7 - "x axis"
 par(mar=c(0,0,0,0),cex=1,family="serif")
 plot(1,1,pch=1,col="white",xlim=c(0,2),ylim=c(0,10),xaxt="n",yaxt="n",bty="n")
-text(1.25,6,"Simulation Year",adj=1)
+text(1.1,6,"Simulation Year",adj=1)
 
 
 
 #####################################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
+#Extra plots
 
 #Prescribed fire
 dev.off()

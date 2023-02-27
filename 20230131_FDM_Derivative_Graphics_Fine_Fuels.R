@@ -7,7 +7,7 @@
 #1) Line graphs
 #2) Box plots
 
-#Author: jim Cronan
+#Author: Jim Cronan
 #Organization: US Forest Service
 #Address:
 #400 N 34th Street
@@ -19,9 +19,10 @@ library(fields)#for set.panel()
 library(ggplot2)#for boxplots
 library(stringr)#to wrap legend title
 library(pander)
-library(tidyverse)
 library(lubridate)
 library(egg) ##ggarrange()
+library(grid) #textGrob()
+library(ggpubr) #annotate_figure()
 #################################################################################################
 #################################################################################################
 #DATA INPUTS
@@ -29,9 +30,10 @@ library(egg) ##ggarrange()
 #Which computer are you using?
 #USFS
 usfs <- "C:/Users/jcronan/OneDrive - USDA/"
+pers <- "C:/Users/james/"
 
 #################################################################################################
-setwd(paste(usfs, "Documents/FDM_2023_Simulation_Data/Step_05_Derivative_Tables", sep = ""))
+setwd(paste(pers, "Documents/FDM_2023_Simulation_Data/Step_05_Derivative_Tables", sep = ""))
 
 #Import input parameters
 dt_csv <- read.csv("Derivative_table_fine_fuels.csv", header=TRUE, 
@@ -76,15 +78,21 @@ dtr <- t(apply(dtp[1:length(dtp[,1]),4:9], 1, function(x) round((x/total_area)*1
 
 dt <- data.frame(dtp[,1:3], dtr)
 
+#Convert rx fire scenarios to hectares (from acres)
+dt$rx_fire[dt$rx_fire == 50] <- 20
+dt$rx_fire[dt$rx_fire == 75] <- 30
+dt$rx_fire[dt$rx_fire == 100] <- 40
+dt$rx_fire[dt$rx_fire == 125] <- 50
+
 #Generate a 3 - panel plot of fine fuel loading over time for low, medium, and high weight surface fuels
 dev.off()
 set.panel(3,1)
 cf <- 0.5
+scenario <- c(20,30,40,50)
+ct <- as.character(c("blue", "green", "red", "pink"))
 
 #Total fine fuel loading < 4.5 Mg/ha
 i <- 4
-scenario <- c(50,75,100,125)
-ct <- as.character(c("blue", "green", "orange", "pink"))
 par(tcl=-0.5, family="serif", mai=c(0.3,0.6,0.3,0.3))
 
 for(a in 1:length(scenario))
@@ -96,7 +104,7 @@ for(a in 1:length(scenario))
   runs <- sort(unique(dt$run_no))
   for(b in 1:length(runs))
     {
-    if(b == 1 & scenario[a] == 50)
+    if(b == 1 & scenario[a] == scenario[1])
       {
       plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(30,55),
            ylab = "")
@@ -107,15 +115,15 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-legend(3,42, c("Baseline", "50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("black", "blue", "green", "orange", "pink"), 
+legend(3,45, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
+               expression("30k" ~ yr^-1), expression("50k" ~ yr^-1)), 
+       col = c("black", "blue", "green", "red", "pink"), 
        lty = c(2,1,1,1,1))
 text(0, 53, "A)")
 #title("Fine Fuel Loading Less Than 4.5 Mg/ha")
 
 #Total fine fuel loading 4.5 - 9 Mg/ha
 i <- 5
-scenario <- c(50,75,100,125)
-ct <- as.character(c("blue", "green", "orange", "pink"))
 par(tcl=-0.5, family="serif", mai=c(0.3,0.6,0.3,0.3))
 
 for(a in 1:length(scenario))
@@ -127,10 +135,10 @@ for(a in 1:length(scenario))
   runs <- sort(unique(dt$run_no))
   for(b in 1:length(runs))
   {
-    if(b == 1 & scenario[a] == 50)
+    if(b == 1 & scenario[a] == scenario[1])
     {
       plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(10,35), 
-           ylab = "Percent of Eglin Air Force Base's Land Area")
+           ylab = "Eglin Air Force Base - Percent Land Area")
     } else
     {
       lines(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], col = lc)
@@ -143,8 +151,6 @@ text(0, 33, "B)")
 
 #Total fine fuel loading > 9 Mg/ha
 i <- 9
-scenario <- c(50,75,100,125)
-ct <- as.character(c("blue", "green", "orange", "pink"))
 par(tcl=-0.5, family="serif", mai=c(0.6,0.6,0.3,0.3))
 
 for(a in 1:length(scenario))
@@ -156,9 +162,9 @@ for(a in 1:length(scenario))
   runs <- sort(unique(dt$run_no))
   for(b in 1:length(runs))
   {
-    if(b == 1 & scenario[a] == 50)
+    if(b == 1 & scenario[a] == scenario[1])
     {
-      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(15,45), 
+      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(20,45), 
            xlab = "Simulation Year", ylab = "")
     } else
     {
@@ -180,8 +186,8 @@ dev.off()
 #Subset data for every 10 years
 dtx <- dt[dt[,3] %in% c(0,10,20,30,40,50),]
 
-#Convert acres to hectares
-dtx[,1] <- floor((dtx[,1] * 0.404686))
+#Legend text
+lt <- expression("Prescribed fire scenario (1000s of hectares" ~ year^-1 ~ "):  ")
 
 ########################################################################################################
 #Panel A (less than 4.5 mg/ha)
@@ -205,15 +211,16 @@ dtza$rx_fire <- factor(dtza$rx_fire, levels = rev(levels(dtza$rx_fire)))
 #Generate boxplot
 bp1 <- ggplot(data = dtza, aes(x = sim_year, y = ff, fill = rx_fire))  +
   geom_boxplot(width = 0.75) + 
-  labs(fill="Prescribed fire scenario\n(1000s of hectares)") + 
+  labs(fill = lt) + 
   geom_hline(aes(yintercept = dtya$ff[dtya$sim_year == 0][1], linetype = "Baseline conditions")) + 
   scale_linetype_manual(name = "", values = "dashed") + 
   scale_fill_manual(values=c("50" = "pink", "40" = "red", 
                              "30" = "green", "20" = "blue")) + 
-  annotate("text", x=0.75, y=51, label= "A)") + 
-  theme(legend.position = "none") + 
+  annotate("text", x=0.75, y=54, label= "A)") + 
+  theme(legend.title = element_text(color = "black", size = 9)) + 
   theme(axis.title.x=element_blank()) + 
-  theme(axis.title.y=element_blank())
+  theme(axis.title.y=element_blank()) + 
+  coord_cartesian(ylim = c(30, 55))
 
 ########################################################################################################
 #Panel B (4.5 9.0 mg/ha)
@@ -236,16 +243,19 @@ dtzb$rx_fire <- factor(dtzb$rx_fire, levels = rev(levels(dtzb$rx_fire)))
 
 #Generate boxplot
 bp2 <- ggplot(data = dtzb, aes(x = sim_year, y = ff, fill = rx_fire))  +
-  geom_boxplot(width = 0.75) + ylab("Eglin Air Force Base - Percent Land Area") + 
-  labs(fill="Prescribed fire scenario\n(1000s of hectares)") + 
+  geom_boxplot(width = 0.75) + 
+  labs(fill = lt) + 
   geom_hline(aes(yintercept = dtyb$ff[dtyb$sim_year == 0][1], linetype = "Baseline conditions")) + 
   scale_linetype_manual(name = "", values = "dashed") + 
   scale_fill_manual(labels = c(expression("50k" ~ ha ~ yr^-1), expression("40k" ~ ha ~ yr^-1), 
                                expression("30k" ~ ha ~ yr^-1), expression("20k" ~ ha ~ yr^-1)), 
                     values=c("50" = "pink", "40" = "red", 
                              "30" = "green", "20" = "blue")) + 
-  annotate("text", x=0.75, y=26, label= "B)") + 
-  theme(axis.title.x=element_blank())
+  annotate("text", x=0.75, y=34, label= "B)") + 
+  theme(legend.title = element_text(color = "black", size = 9)) + 
+  theme(axis.title.x=element_blank()) + 
+  theme(axis.title.y=element_blank()) + 
+  coord_cartesian(ylim = c(10, 35))
 
 ########################################################################################################
 #Panel C (greater than 9.0 mg/ha)
@@ -268,18 +278,29 @@ dtzc$rx_fire <- factor(dtzc$rx_fire, levels = rev(levels(dtzc$rx_fire)))
 
 #Generate boxplot
 bp3 <- ggplot(data = dtzc, aes(x = sim_year, y = ff, fill = rx_fire))  +
-  geom_boxplot(width = 0.75) + xlab("Simulation Year") + 
-  labs(fill="Prescribed fire scenario\n(1000s of hectares)") + 
+  geom_boxplot(width = 0.75) + 
+  labs(fill = lt) + 
   geom_hline(aes(yintercept = dtyc$ff[dtyc$sim_year == 0][1], linetype = "Baseline conditions")) + 
   scale_linetype_manual(name = "", values = "dashed") + 
   scale_fill_manual(values=c("50" = "pink", "40" = "red", 
                              "30" = "green", "20" = "blue")) + 
-  annotate("text", x=0.75, y=41, label= "C)") + 
-  theme(legend.position = "none") + 
-  theme(axis.title.y=element_blank())
+  annotate("text", x=0.75, y=44, label= "C)") + 
+  theme(legend.title = element_text(color = "black", size = 9)) + 
+  theme(axis.title.x=element_blank()) + 
+  theme(axis.title.y=element_blank()) + 
+  coord_cartesian(ylim = c(20, 45))
 
 
-#Plot box plots
-figure<- ggarrange(bp1,bp2,bp3,
-                   ncol=1,nrow=3)
+#Generate box plots
+figure <- ggarrange(bp1, bp2, bp3,
+                    common.legend = TRUE,
+                    legend = "bottom",
+                    ncol=1, 
+                    nrow=3)
+
+# Annotate the figure by adding a common labels
+annotate_figure(figure,
+                bottom = text_grob("Simulation Year", color = "black", size = 12),
+                left = text_grob("Eglin Air Force Base - Percent Land Area", 
+                                 color = "black", rot = 90, size = 12))
 
