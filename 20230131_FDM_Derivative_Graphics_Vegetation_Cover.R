@@ -19,7 +19,6 @@ library(fields)#for set.panel()
 library(ggplot2)#for boxplots
 library(stringr)#to wrap legend title
 library(pander)
-library(tidyverse)
 library(lubridate)
 library(egg) ##ggarrange()
 #################################################################################################
@@ -118,14 +117,14 @@ for(a in 1:length(scenario))
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
 
-text(0, 99, "A)")
+text(0, 68, "A)")
 
 #Box 3 - Legend
 par(tcl=-0.5, family="serif", mai=c(0.3,0.3,0.3,0.3))
 plot(1, 1, type = "l", col = lc, xlim = c(0,100), ylim = c(0,100), xaxt = 'n', labels = F, yaxt = 'n', bty = "n", 
      xlab = "", ylab = "")
 par(mar=c(0,0,0,0),cex=1,family="serif")
-legend(40,70, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
+legend(35,90, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
                 expression("30k" ~ yr^-1), expression("50k" ~ yr^-1)), col = c("black", "blue", "green", "red", "pink"), 
        lty = c(2,1,1,1,1))
 
@@ -153,7 +152,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 99, "B)")
+text(0, 48, "B)")
 
 
 #Box 5 - Broadleaf
@@ -180,7 +179,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 99, "C)")
+text(0, 48, "C)")
 
 #Box 6 - Short-needle pine
 i <- 8
@@ -206,7 +205,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 99, "D)")
+text(0, 48, "D)")
 
 #Box 7 - Tall shrub
 i <- 9
@@ -232,7 +231,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 99, "E)")
+text(0, 48, "E)")
 
 #Box 8 - nothing
 par(mar=c(0,0,0,0),cex=1,family="serif")
@@ -242,7 +241,7 @@ text(1,6,"",pos=3,srt=90)
 #Box 9 - "x axis"
 par(mar=c(0,0,0,0),cex=1,family="serif")
 plot(1,1,pch=1,col="white",xlim=c(0,2),ylim=c(0,10),xaxt="n",yaxt="n",bty="n")
-text(1.1,6,"Simulation Year",adj=1)
+text(1.1,4,"Simulation Year",adj=1)
 
 ###############################################################################################################
 ###############################################################################################################

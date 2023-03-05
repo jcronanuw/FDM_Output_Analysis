@@ -13,7 +13,6 @@
 library(stringr)#needed for str_extract
 library(fields)#for set.panel()
 
-
 #################################################################################################
 #################################################################################################
 #DATA INPUTS
@@ -40,6 +39,11 @@ st$scenario[st$scenario == 125] <- 50
 scenario <- c(20,30,40,50)
 run <- 1:10
 sim_years <- 1:50
+
+
+#################################################################################################
+#################################################################################################
+#LINE PLOTS
 
 #Set up inputs for plotting
 dev.off()
@@ -190,7 +194,7 @@ for(a in 1:length(scenario))
     }
   }
 }
-legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "orange", "pink"), 
+legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
        lty = 1)
 
 #Wildfire - natural spread
@@ -211,7 +215,7 @@ for(a in 1:length(scenario))
     }
   }
 }
-legend(40,15000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "orange", "pink"), 
+legend(40,15000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
        lty = 1)
 
 #Wildfire - block and burn
@@ -232,7 +236,7 @@ for(a in 1:length(scenario))
     }
   }
 }
-legend(40,15000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "orange", "pink"), 
+legend(40,15000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
        lty = 1)
 
 
@@ -254,6 +258,83 @@ for(a in 1:length(scenario))
     }
   }
 }
-legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "orange", "pink"), 
+legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
        lty = 1)
 
+#herbicide (actual:admin area)
+hr <- st[,5]/st[,8]
+dev.off()
+for(a in 1:length(scenario))
+{
+  lc <- ct[a]
+  for(b in run)
+  {
+    if(a == 1 & b == 1)
+    {
+      plot(st$sim_year[st$run == b & st$scenario == scenario[a]], hr[st$run == b & st$scenario == scenario[a]], 
+           type = "l", col = lc, 
+           ylim = c(0,1), ylab = "")
+    } else
+    {
+      lines(st$sim_year[st$run == b & st$scenario == scenario[a]], hr[st$run == b & st$scenario == scenario[a]], 
+            col = lc)
+    }
+  }
+}
+legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
+       lty = 1)
+
+#pct (actual:admin area)
+tr <- st[,4]/st[,7]
+dev.off()
+for(a in 1:length(scenario))
+{
+  lc <- ct[a]
+  for(b in run)
+  {
+    if(a == 1 & b == 1)
+    {
+      plot(st$sim_year[st$run == b & st$scenario == scenario[a]], tr[st$run == b & st$scenario == scenario[a]], 
+           type = "l", col = lc, 
+           ylim = c(0,1), ylab = "")
+    } else
+    {
+      lines(st$sim_year[st$run == b & st$scenario == scenario[a]], tr[st$run == b & st$scenario == scenario[a]], 
+            col = lc)
+    }
+  }
+}
+legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
+       lty = 1)
+
+#rx fire (actual:admin area)
+fr <- st[,6]/st[,9]
+dev.off()
+for(a in 1:length(scenario))
+{
+  lc <- ct[a]
+  for(b in run)
+  {
+    if(a == 1 & b == 1)
+    {
+      plot(st$sim_year[st$run == b & st$scenario == scenario[a]], fr[st$run == b & st$scenario == scenario[a]], 
+           type = "l", col = lc, 
+           ylim = c(0,1), ylab = "")
+    } else
+    {
+      lines(st$sim_year[st$run == b & st$scenario == scenario[a]], fr[st$run == b & st$scenario == scenario[a]], 
+            col = lc)
+    }
+  }
+}
+legend(40,40000, c("50k/yr", "75k/yr", "100k/yr", "125k/yr"), col = c("blue", "green", "red", "pink"), 
+       lty = 1)
+
+#################################################################################################
+#################################################################################################
+#SUMMARY STATS/INFO FOR RESULTS
+head(st)
+
+
+
+0.404686

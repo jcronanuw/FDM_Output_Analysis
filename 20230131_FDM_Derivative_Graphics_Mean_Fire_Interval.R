@@ -114,7 +114,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 95, "A)")
+text(0, 39, "A)")
 
 #BOX 3 - MFI 4-8 years
 i <- 6
@@ -140,7 +140,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 95, "B)")
+text(0, 39, "B)")
 
 #BOX 4 - MFI 9-20 years
 i <- 7
@@ -166,10 +166,10 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-legend(3,40, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
+legend(33,40, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
                expression("30k" ~ yr^-1), expression("50k" ~ yr^-1)), col = c("black", "blue", "green", "red", "pink"), 
        lty = c(2,1,1,1,1))
-text(0, 95, "C)")
+text(0, 39, "C)")
 
 #BOX 5 - MFI > 20 years
 i <- 8
@@ -195,7 +195,7 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 95, "D)")
+text(0, 59, "D)")
 
 #Box 6 - nothing
 par(mar=c(0,0,0,0),cex=1,family="serif")
