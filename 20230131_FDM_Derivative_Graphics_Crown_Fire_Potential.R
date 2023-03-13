@@ -42,7 +42,7 @@ dt_csv <- read.csv("Derivative_table_crown_fire_potential.csv", header=TRUE,
 
 #Look at totals for each row. This is the number of pixels in each map. These numbers should
 #all be the same, or at least in a very narrow range.
-dev.off()
+#dev.off()
 dt_sum <- apply(dt_csv[,4:11],1,sum)
 range(dt_sum)
 plot(dt_sum)
@@ -266,3 +266,45 @@ annotate_figure(figure,
                 left = text_grob("Eglin Air Force Base - Percent Land Area", 
                                  color = "black", rot = 90, size = 12))
 
+##############################################################################################################
+##############################################################################################################
+#SUMMARY STATS
+
+#FCCS Crown fire potential: 1-3
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$low[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$low[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$low[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$low[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#FCCS Crown fire potential: 4-6
+
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+ha <- matrix(data = 0, nrow = 24, ncol = 6)
+ha[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+ha[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    ha[,3][length(ha[,3][ha[,3] != 0])+1] <- round(mean(dt$hi[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    ha[,4][length(ha[,4][ha[,4] != 0])+1] <- round(sd(dt$hi[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    ha[,5][length(ha[,5][ha[,5] != 0])+1] <- min(dt$hi[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    ha[,6][length(ha[,6][ha[,6] != 0])+1] <- max(dt$hi[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}

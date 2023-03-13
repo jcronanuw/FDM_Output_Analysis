@@ -73,17 +73,17 @@ dt$rx_fire[dt$rx_fire == 100] <- 40
 dt$rx_fire[dt$rx_fire == 125] <- 50
 
 dev.off()
-#Generate a 3 - panel plot of fine fuel loading over time for low, medium, and high weight surface fuels
+#Generate a 3 - panel plot of fine fuel loading over time for each vegetation type
 tfi <- layout(matrix(c(1,2,3,1,4,5,1,6,7,8,9,9),4,3,byrow=TRUE), 
               c(1,17.5,17.5), c(8.5,8.5,8.5,1.1),
               TRUE)
 cf <- 0.5
 
-#1 - long needle pine
-#2 - mixed broadleaf pine
-#3 - broadleaf
-#4 - short-needle pine
-#5 - tall shrub
+#X1 - long needle pine
+#X2 - mixed broadleaf pine
+#X3 - broadleaf
+#X4 - short-needle pine
+#X5 - tall shrub
 scenario <- c(20,30,40,50)
 ct <- as.character(c("blue", "green", "red", "pink"))
 
@@ -356,3 +356,89 @@ bp3 <- ggplot(data = dtzc, aes(x = sim_year, y = ff, fill = rx_fire))  +
 figure<- ggarrange(bp1,bp2,bp3,
                    ncol=1,nrow=3)
 
+##############################################################################################################
+##############################################################################################################
+#SUMMARY STATS
+#X1 - long needle pine
+#X2 - mixed broadleaf pine
+#X3 - broadleaf
+#X4 - short-needle pine
+#X5 - tall shrub
+
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+#Longleaf Pine
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Mixed broadleaf pine
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Broadleaf
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Short-needle pine
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Tall shrub
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X5[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X5[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X5[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X5[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}

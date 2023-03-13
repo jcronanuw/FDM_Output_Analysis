@@ -304,3 +304,63 @@ annotate_figure(figure,
                 left = text_grob("Eglin Air Force Base - Percent Land Area", 
                                  color = "black", rot = 90, size = 12))
 
+##############################################################################################################
+##############################################################################################################
+#SUMMARY STATS
+
+#Total fine fuel loading < 4.5 Mg/ha
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$L_0_2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$L_0_2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$L_0_2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$L_0_2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Total fine fuel loading 4.6 - 9.0 Mg/ha
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+ma <- matrix(data = 0, nrow = 24, ncol = 6)
+ma[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+ma[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    ma[,3][length(ma[,3][ma[,3] != 0])+1] <- round(mean(dt$L_2_4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    ma[,4][length(ma[,4][ma[,4] != 0])+1] <- round(sd(dt$L_2_4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    ma[,5][length(ma[,5][ma[,5] != 0])+1] <- min(dt$L_2_4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    ma[,6][length(ma[,6][ma[,6] != 0])+1] <- max(dt$L_2_4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Total fine fuel loading > 9.0 Mg/ha
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+ha <- matrix(data = 0, nrow = 24, ncol = 6)
+ha[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+ha[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    ha[,3][length(ha[,3][ha[,3] != 0])+1] <- round(mean(dt$L_4_[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    ha[,4][length(ha[,4][ha[,4] != 0])+1] <- round(sd(dt$L_4_[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    ha[,5][length(ha[,5][ha[,5] != 0])+1] <- min(dt$L_4_[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    ha[,6][length(ha[,6][ha[,6] != 0])+1] <- max(dt$L_4_[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}

@@ -380,3 +380,82 @@ annotate_figure(figure,
 #                right = "I'm done, thanks :-)!",
 #                fig.lab = "Figure 1", fig.lab.face = "bold")
 
+##############################################################################################################
+##############################################################################################################
+#SUMMARY STATS
+
+#Mean fire interval 1-3 years
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X1[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Mean fire interval 4-8 years
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X2[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Mean fire interval 9-20 years
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X3[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}
+
+#Mean fire interval 9-20 years
+scenario <- c(20,30,40,50)
+times <- c(0,10,20,30,40,50)
+
+
+la <- matrix(data = 0, nrow = 24, ncol = 6)
+la[,1] <- c(rep(20,6),rep(30,6),rep(40,6),rep(50,6))
+la[,2] <- rep(c(0,10,20,30,40,50),4)
+for(a in 1:length(scenario))
+{
+  for(b in 1:length(times))
+  {
+    la[,3][length(la[,3][la[,3] != 0])+1] <- round(mean(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),1)
+    la[,4][length(la[,4][la[,4] != 0])+1] <- round(sd(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]]),2)
+    la[,5][length(la[,5][la[,5] != 0])+1] <- min(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+    la[,6][length(la[,6][la[,6] != 0])+1] <- max(dt$X4[dt$rx_fire == scenario[a] & dt$sim_yr == times[b]])
+  }
+}

@@ -35,11 +35,131 @@ st$scenario[st$scenario == 75] <- 30
 st$scenario[st$scenario == 100] <- 40
 st$scenario[st$scenario == 125] <- 50
 
+#Summary stats - prescribed fires
+s_years <- 2:50
+sc <- 20
+round(median(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+round(range(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+
+sc <- 30
+round(median(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+round(range(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+
+sc <- 40
+round(median(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+round(range(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+
+sc <- 50
+round(median(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+round(range(st$admin_rx_fire_area[st$scenario == sc & st$sim_year %in% s_years]) * 0.404686, 0)
+
+#Summary stats - wildfires
+head(st)
+
 #Set up loop to cycle through all simulation feeds.
 scenario <- c(20,30,40,50)
 run <- 1:10
 sim_years <- 1:50
 
+#Eglin Air Force Base
+#Expected annual area burned in wildfires
+#467,086 acres
+#432,878 acres (1,946,463 pixels) are vegetated terrestrial.
+#Fire rotation: 54.4 years
+(467086/54.4) * 0.404686
+103.7 * 0.404686
+432878/54.4
+
+aab_wfr <- st$eglin_wildfire_area + st$eglin_blockburn_area
+round(mean(aab_wfr[st$scenario == 20]) * 0.404686,0)
+round(mean(aab_wfr[st$scenario == 30]) * 0.404686,0)
+round(mean(aab_wfr[st$scenario == 40]) * 0.404686,0)
+round(mean(aab_wfr[st$scenario == 50]) * 0.404686,0)
+
+#10-km Buffer Zone
+#Expected annual area burned in wildfires
+#Area of buffer zone is 580,925.2 acres
+#Area in hectares
+bza <- 580925.2  * 0.404686
+#Fire rotation: 457.4 years
+(bza/457.4)#average annual area needed to burn for this fire rotation
+
+aab_wfr <- st$buffer_wildfire_area
+round(mean(aab_wfr[st$scenario == 20]) * 0.404686,0)
+round(mean(aab_wfr[st$scenario == 30]) * 0.404686,0)
+round(mean(aab_wfr[st$scenario == 40]) * 0.404686,0)
+round(mean(aab_wfr[st$scenario == 50]) * 0.404686,0)
+round(mean(aab_wfr) * 0.404686,0)
+
+#Pre-commercial thinning
+pct_t <- st$trtd_pct_area
+pct_a <- st$admin_pct_area
+
+round(mean(pct_a[st$scenario == 20]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 30]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 40]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 50]) * 0.404686,0)
+round(mean(pct_a) * 0.404686,0)
+
+#Years 1-25
+round(mean(pct_a[st$scenario == 20 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 30 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 40 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 50 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(mean(pct_a[st$sim_year %in% 1:25]) * 0.404686,0)
+
+#Years 26-50
+round(mean(pct_a[st$scenario == 20 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 30 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 40 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(mean(pct_a[st$scenario == 50 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(mean(pct_a[st$sim_year %in% 26:50]) * 0.404686,0)
+
+#Years 1-25
+round(max(pct_a[st$scenario == 20 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(max(pct_a[st$scenario == 30 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(max(pct_a[st$scenario == 40 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(max(pct_a[st$scenario == 50 & st$sim_year %in% 1:25]) * 0.404686,0)
+round(max(pct_a[st$sim_year %in% 1:25]) * 0.404686,0)
+
+#Years 26-50
+round(max(pct_a[st$scenario == 20 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(max(pct_a[st$scenario == 30 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(max(pct_a[st$scenario == 40 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(max(pct_a[st$scenario == 50 & st$sim_year %in% 26:50]) * 0.404686,0)
+round(max(pct_a[st$sim_year %in% 26:50]) * 0.404686,0)
+
+ra <- pct_t/pct_a
+mean(ra)
+range(ra)
+
+#Herbicide
+h_t <- st$trtd_herbicide_area
+h_a <- st$admin_herbicide_area
+
+round(mean(h_a[st$scenario == 20]) * 0.404686,0)
+round(mean(h_a[st$scenario == 30]) * 0.404686,0)
+round(mean(h_a[st$scenario == 40]) * 0.404686,0)
+round(mean(h_a[st$scenario == 50]) * 0.404686,0)
+round(mean(h_a) * 0.404686,0)
+
+#Year 1
+round(mean(h_a[st$scenario == 20 & st$sim_year == 1]) * 0.404686,0)
+round(mean(h_a[st$scenario == 30 & st$sim_year == 1]) * 0.404686,0)
+round(mean(h_a[st$scenario == 40 & st$sim_year == 1]) * 0.404686,0)
+round(mean(h_a[st$scenario == 50 & st$sim_year == 1]) * 0.404686,0)
+round(mean(h_a[st$sim_year == 1]) * 0.404686,0)
+
+#Years 25
+round(mean(h_a[st$scenario == 20 & st$sim_year == 25]) * 0.404686,0)
+round(mean(h_a[st$scenario == 30 & st$sim_year == 25]) * 0.404686,0)
+round(mean(h_a[st$scenario == 40 & st$sim_year == 25]) * 0.404686,0)
+round(mean(h_a[st$scenario == 50 & st$sim_year == 25]) * 0.404686,0)
+round(mean(h_a[st$sim_year == 25]) * 0.404686,0)
+
+ra <- h_t/h_a
+mean(ra)
+range(ra)
 
 #################################################################################################
 #################################################################################################
