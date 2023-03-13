@@ -54,6 +54,8 @@ intervals <- c("05", as.character(seq(10,50,5)))
 
 #Input file pre-fix
 prefix_in <- "c"
+
+
 prefix_name <- "change_fine_fuels"
 
 #Open the map with prescribed fire burn units. This is needed to remove the buffer zone from the analysis area
@@ -67,10 +69,14 @@ fuelbed_map <- matrix(scan("f_050_001_05.asc", skip = f.head@file@offset),ncol=f
 #Reset working directory
 setwd(paste(ed, ":/FDM_2023_Simulation_Data/Step_02_Fuelbed_Derivative_Maps/maps", sep = ""))
 
-#Create a list to accespt outputs
-derivative_data <- list()
 
-#Set up a nested loop to process all simulation maps (cannot import all of them at once, there are too many (400 maps).
+#Create a list to hold min derivative values for each map
+min_value <- vector()
+
+#Create a vector to hold max derivative values for each map
+max_value <- vector()
+
+#Set up a nested loop to figure out total range of derivative values.
 for(a in 1:length(rx_fire))
 {
   for(b in 1:length(run_number))
@@ -95,36 +101,72 @@ for(a in 1:length(rx_fire))
     }
     
     #Identify the cell with the lowest change in derivative value.
-    min_value <- vector()
     for(i in 1:length(maps_in))
     {
-      min_value[i] <- min(as.vector(maps_in[[i]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000)]))
+      min_value[length(min_value)+1] <- min(as.vector(maps_in[[i]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000)]))
     }
-    d_min <- round(min(min_value)-1,0)
     
     #Identify the cell with the highest change in derivative value.
-    max_value <- vector()
     for(i in 1:length(maps_in))
       {
-      max_value[i] <- max(as.vector(maps_in[[i]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000)]))
+      max_value[length(max_value)+1] <- max(as.vector(maps_in[[i]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000)]))
       }
-    d_max <- round(max(max_value)+1,0)
+    
+    rm(maps_in)
+    rm(filenames_in)
+    print(paste("Identifying range:  Rx_fire", rx_fire[a], "Run", run_number[b], sep = " "))
+  }
+}
+
+d_min <- round(min(min_value)-1,0)
+d_max <- round(max(max_value)+1,0)
+
+
+#Create a list to accespt outputs
+derivative_data <- list()
+
+#Generate tabular data
+#Set up a nested loop to process all simulation maps (cannot import all of them at once, there are too many (400 maps).
+for(a in 1:length(rx_fire))
+{
+  for(b in 1:length(run_number))
+  {
+    
+    #Create a list to hold file namnes
+    filenames_in <- vector()
+    
+    #Create a list to hold maps
+    maps_in <- list()
+    
+    #Add sim. year zero to map list
+    maps_in[[1]] <- maps_orig
+    
+    for(c in 1:length(intervals))
+    {
+      #Generate file names of maps to import
+      filenames_in[c] <- paste(prefix_in, rx_fire[a], "_", run_number[b], "_", intervals[c], ".asc", sep = "")
+      
+      #Import maps
+      maps_in[[c+1]] <- matrix(scan(filenames_in[c],skip = f.head@file@offset),ncol=f.head@ncols,byrow=T)
+    }
     
     #################################################################################################
     #Set up matrix to hold fine fuel load values
     derivative_matrix <- matrix(nrow = length(maps_in), ncol = length(seq(d_min,d_max,1)))
     
-      for(n in 1:length(maps_in))
-        {
-        for(o in d_min:d_max)
-        {
-          derivative_matrix[n,o] <- length(maps_in[[n]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000) & maps_in[[n]] > (o-1) & maps_in[[n]] <= o])
-        }
+    d_values <- d_min:d_max
+    for(n in 1:length(maps_in))
+    {
+      for(o in 1:length(d_values))
+      {
+        derivative_matrix[n,o] <- length(maps_in[[n]][!unit_map %in% c(-9999, 8888) & !fuelbed_map %in% c(5099000, 6000000) & maps_in[[n]] > (d_values[o]-1) & maps_in[[n]] <= d_values[o]])
       }
+    }
+    colnames(derivative_matrix) <- d_values
     derivative_data[[1+length(derivative_data)]] <- derivative_matrix
     rm(maps_in)
     rm(filenames_in)
-    print(paste("Rx_fire", rx_fire[a], "Run", run_number[b], sep = " "))
+    print(paste("Generating Tabular Data:  Rx_fire", rx_fire[a], "Run", run_number[b], sep = " "))
   }
 }
 
@@ -149,7 +191,7 @@ ddf <- data.frame(rx_fire = df$Var3,
 
 derivative_df <- cbind(ddf, dm)
 
-setwd(ed, ":/FDM_2023_Simulation_Data/Step_05_Derivative_Tables")
+setwd(paste(ed, ":/FDM_2023_Simulation_Data/Step_05_Derivative_Tables", sep = ""))
 write.csv(derivative_df, file = paste("Derivative_table_", prefix_name, ".csv", sep = ""),
            row.names = FALSE)#
 
