@@ -63,6 +63,9 @@ dt10 <- dt2[dt2$sim_yr %in% c(10,20,30,40,50),]
 #Create an id number for each row.
 row_id <- dt10$run_no
 
+#Two-way ANOVA analysis code from:
+#https://www.datanovia.com/en/lessons/repeated-measures-anova-in-r/
+
 #Create dataset for low fine fuel loading
 ff_low <- data.frame(id = as.factor(row_id),
                      rx_fire = as.factor(paste("rx", dt10$rx_fire, sep = "")),
