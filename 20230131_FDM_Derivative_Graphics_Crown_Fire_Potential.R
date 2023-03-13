@@ -1,7 +1,8 @@
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#PURPOSE: This script generates graphics from tabular data for fine fuels tables produced
-#in 20230131_FDM_Derivative_Processing_Fine_Fuels.R scrip in this GitHub repository.
+#PURPOSE: This script generates graphics from tabular data for crown fire potential tables 
+#produced in 20230131_FDM_Derivative_Processing_crown_fire_potential.R scrip in this GitHub 
+#repository.
 #GitHub Repository: FDM_Output_Analysis
 #Graphics:
 #1) Line graphs
@@ -36,16 +37,17 @@ pers <- "C:/Users/james/"
 setwd(paste(pers, "Documents/FDM_2023_Simulation_Data/Step_05_Derivative_Tables", sep = ""))
 
 #Import input parameters
-dt_csv <- read.csv("Derivative_table_fine_fuels.csv", header=TRUE, 
+dt_csv <- read.csv("Derivative_table_crown_fire_potential.csv", header=TRUE, 
                    sep=",", na.strings="NA", dec=".", strip.white=TRUE)
 
 #Look at totals for each row. This is the number of pixels in each map. These numbers should
 #all be the same, or at least in a very narrow range.
-dt_sum <- apply(dt_csv[,4:24],1,sum)
+dev.off()
+dt_sum <- apply(dt_csv[,4:11],1,sum)
 range(dt_sum)
 plot(dt_sum)
 total_pixels <- mean(dt_sum)
-#They are all exactly the same
+#There's a bit of a spread, (about 30,000 pixels or 6000 acres), but shouldn't affect results
 
 #Map resolution (acres per 30x30 meter pixel)
 MapRes <- 0.222395
@@ -57,24 +59,20 @@ MapRes * total_pixels
 #467,086 acres
 #432,878 acres (1,946,463 pixels) are vegetated terrestrial.
 
-total_area <- 2100256
+total_area <- total_pixels
 
 #Common name for table showing pixels per category
 dtp <- dt_csv
 
-dtp_0_2 <- dtp$X1 + dtp$X2
-dtp_2_4 <- dtp$X3 + dtp$X4
-dtp_4_6 <- dtp$X5 + dtp$X6
-dtp_6_10 <- dtp$X7 + dtp$X8 + dtp$X9 + dtp$X10
-dtp_11_ <- dtp$X11 + dtp$X12 + dtp$X13 + dtp$X14 + dtp$X15 + dtp$X16 + dtp$X17 + dtp$X18 + dtp$X19 + dtp$X20 + dtp$X21
-dtp_4_ <- dtp$X5 + dtp$X6 + dtp$X7 + dtp$X8 + dtp$X9 + dtp$X10 + dtp$X11 + dtp$X12 + dtp$X13 + dtp$X14 + dtp$X15 + dtp$X16 + dtp$X17 + dtp$X18 + dtp$X19 + dtp$X20 + dtp$X21
+dtp_low <- dtp$X1 + dtp$X2 + dtp$X3
+dtp_hi <- dtp$X4 + dtp$X5 + dtp$X6
 
-dtp <- data.frame(dtp[,1:3], L_0_2 = dtp_0_2, L_2_4 = dtp_2_4, L_4_6 = dtp_4_6, L_6_10 = dtp_6_10, L_10_ = dtp_11_, L_4_ = dtp_4_)
+dtp <- data.frame(dtp[,1:3], low = dtp_low, hi = dtp_hi)
 
 
 #Convert pixels to percent of EAFB
 #dtr <- t(apply(dtp[1:length(dtp[,1]),4:24], 1, function(x) round((x/total_area)*100,1)))
-dtr <- t(apply(dtp[1:length(dtp[,1]),4:9], 1, function(x) round((x/total_area)*100,1)))
+dtr <- t(apply(dtp[1:length(dtp[,1]),4:5], 1, function(x) round((x/total_area)*100,1)))
 
 dt <- data.frame(dtp[,1:3], dtr)
 
@@ -86,14 +84,30 @@ dt$rx_fire[dt$rx_fire == 125] <- 50
 
 #Generate a 3 - panel plot of fine fuel loading over time for low, medium, and high weight surface fuels
 dev.off()
-set.panel(3,1)
-cf <- 0.5
+
+#Set up loop to cycle through all simulation feeds.
 scenario <- c(20,30,40,50)
+run <- 1:10
+sim_years <- 1:50
+
+#Set colors for each scenario
 ct <- as.character(c("blue", "green", "red", "pink"))
 
-#Total fine fuel loading < 4.5 Mg/ha
+#Generate panes for plots
+tfi <- layout(matrix(c(1,2,1,3,4,5),3,2,byrow=TRUE), 
+              c(1,35), c(12.8,12.8,1.0),
+              TRUE)
+#Text position
+tp <- 0.95 #Percent from top
+
+#Box 1 - "y axis"
+par(mar=c(0,0,0,0),cex=1,family="serif")
+plot(1,1,pch=1,col="white",xlim=c(0,2),ylim=c(0,10),xaxt="n",yaxt="n",bty="n")
+text(1,5,"Eglin Air Force Base - Percent Land Area", pos=3, srt=90)
+
+#Box 2 - Crown Fire Potential: 1-3
 i <- 4
-par(tcl=-0.5, family="serif", mai=c(0.3,0.6,0.3,0.3))
+par(tcl=-0.5, family="serif", mai=c(0.3,0.3,0.3,0.3))
 
 for(a in 1:length(scenario))
   {
@@ -106,8 +120,8 @@ for(a in 1:length(scenario))
     {
     if(b == 1 & scenario[a] == scenario[1])
       {
-      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(30,55),
-           ylab = "")
+      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(20,80),
+           xlab = "", ylab = "")
       } else
         {
           lines(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], col = lc)
@@ -115,16 +129,15 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-legend(3,45, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
+legend(1,50, c("Baseline", expression("20k" ~ yr^-1), expression("30k" ~ yr^-1), 
                expression("30k" ~ yr^-1), expression("50k" ~ yr^-1)), 
        col = c("black", "blue", "green", "red", "pink"), 
        lty = c(2,1,1,1,1))
-text(0, 53, "A)")
-#title("Fine Fuel Loading Less Than 4.5 Mg/ha")
+text(0, 100, "A)")
 
-#Total fine fuel loading 4.5 - 9 Mg/ha
+#Box 3 - Crown Fire Potential: 4-6
 i <- 5
-par(tcl=-0.5, family="serif", mai=c(0.3,0.6,0.3,0.3))
+par(tcl=-0.5, family="serif", mai=c(0.3,0.3,0.3,0.3))
 
 for(a in 1:length(scenario))
 {
@@ -137,8 +150,8 @@ for(a in 1:length(scenario))
   {
     if(b == 1 & scenario[a] == scenario[1])
     {
-      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(10,35), 
-           ylab = "Eglin Air Force Base - Percent Land Area")
+      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(20,80),
+           xlab = "", ylab = "")
     } else
     {
       lines(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], col = lc)
@@ -146,35 +159,18 @@ for(a in 1:length(scenario))
   }
 }
 lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 33, "B)")
-#title("Fine Fuel Loading 4.5-9.0 Mg/ha")
+text(0, 100, "B)")
 
-#Total fine fuel loading > 9 Mg/ha
-i <- 9
-par(tcl=-0.5, family="serif", mai=c(0.6,0.6,0.3,0.3))
+#Box 6 - nothing
+par(mar=c(0,0,0,0),cex=1,family="serif")
+plot(1,1,pch=1,col="white",xlim=c(0,2),ylim=c(0,10),xaxt="n",yaxt="n",bty="n")
+text(1,6,"",pos=3,srt=90)
 
-for(a in 1:length(scenario))
-{
-  ss <- which(dt$rx_fire == scenario[a])
-  lc <- ct[a]
-  min_ss <- seq(min(ss),max(ss),11)
-  max_ss <- seq((min(ss)+10),max(ss),11)
-  runs <- sort(unique(dt$run_no))
-  for(b in 1:length(runs))
-  {
-    if(b == 1 & scenario[a] == scenario[1])
-    {
-      plot(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], type = "l", col = lc, ylim = c(20,45), 
-           xlab = "Simulation Year", ylab = "")
-    } else
-    {
-      lines(dt$sim_yr[min_ss[b]:max_ss[b]], dt[min_ss[b]:max_ss[b],i], col = lc)
-    }
-  }
-}
-lines(dt$sim_yr[min_ss[1]:max_ss[1]], rep(dt[min_ss[1],i],11), col = "black", lty = 2, lwd = 2)
-text(0, 43, "C)")
-#title("Fine Fuel Loading Greater Than 9.0 Mg/ha")
+#Box 7 - "x axis"
+par(mar=c(0,0,0,0),cex=1,family="serif")
+plot(1,1,pch=1,col="white",xlim=c(0,2),ylim=c(0,10),xaxt="n",yaxt="n",bty="n")
+text(1.1,6,"Simulation Year",adj=1)
+
 
 ###############################################################################################################
 ###############################################################################################################
@@ -190,7 +186,7 @@ dtx <- dt[dt[,3] %in% c(0,10,20,30,40,50),]
 lt <- expression("Prescribed fire scenario (1000s of hectares" ~ year^-1 ~ "):  ")
 
 ########################################################################################################
-#Panel A (less than 4.5 mg/ha)
+#Panel A (crown fire potential of 1-3)
 
 #Subset data to only columns needed for boxplot.
 dtya <- data.frame(rx_fire = as.factor(dtx[,1]),
@@ -216,14 +212,14 @@ bp1 <- ggplot(data = dtza, aes(x = sim_year, y = ff, fill = rx_fire))  +
   scale_linetype_manual(name = "", values = "dashed") + 
   scale_fill_manual(values=c("50" = "pink", "40" = "red", 
                              "30" = "green", "20" = "blue")) + 
-  annotate("text", x=0.75, y=54, label= "A)") + 
+  annotate("text", x=0.75, y=74, label= "A)") + 
   theme(legend.title = element_text(color = "black", size = 9)) + 
   theme(axis.title.x=element_blank()) + 
   theme(axis.title.y=element_blank()) + 
-  coord_cartesian(ylim = c(30, 55))
+  coord_cartesian(ylim = c(40, 75))
 
 ########################################################################################################
-#Panel B (4.5 9.0 mg/ha)
+#Panel B (crown fire potential of 4-6)
 
 #Subset data to only columns needed for boxplot.
 dtyb <- data.frame(rx_fire = as.factor(dtx[,1]),
@@ -251,52 +247,18 @@ bp2 <- ggplot(data = dtzb, aes(x = sim_year, y = ff, fill = rx_fire))  +
                                expression("30k" ~ ha ~ yr^-1), expression("20k" ~ ha ~ yr^-1)), 
                     values=c("50" = "pink", "40" = "red", 
                              "30" = "green", "20" = "blue")) + 
-  annotate("text", x=0.75, y=34, label= "B)") + 
+  annotate("text", x=0.75, y=64, label= "B)") + 
   theme(legend.title = element_text(color = "black", size = 9)) + 
   theme(axis.title.x=element_blank()) + 
   theme(axis.title.y=element_blank()) + 
-  coord_cartesian(ylim = c(10, 35))
-
-########################################################################################################
-#Panel C (greater than 9.0 mg/ha)
-
-#Subset data to only columns needed for boxplot.
-dtyc <- data.frame(rx_fire = as.factor(dtx[,1]),
-                  sim_year = as.factor(dtx[,3]),
-                  ff = dtx[,9])
-
-#Set rx_fire scenarios to factors.
-dtyc$rx_fire <- factor(dtyc$rx_fire , levels=c("20", "30", "40", "50"))
-
-#Create a secondary data frame to plot boxes that will exclude baseline data
-dtzc <- dtyc
-#Convert baseline data to NA (so plots include sim year zero, but do not plot data for it).
-dtzc$ff[dtzc$sim_year == 0] <- NA
-
-#Reverse order of rx fire scenarios so they are listed in legend from lowest to highest.
-dtzc$rx_fire <- factor(dtzc$rx_fire, levels = rev(levels(dtzc$rx_fire)))
-
-#Generate boxplot
-bp3 <- ggplot(data = dtzc, aes(x = sim_year, y = ff, fill = rx_fire))  +
-  geom_boxplot(width = 0.75) + 
-  labs(fill = lt) + 
-  geom_hline(aes(yintercept = dtyc$ff[dtyc$sim_year == 0][1], linetype = "Baseline conditions")) + 
-  scale_linetype_manual(name = "", values = "dashed") + 
-  scale_fill_manual(values=c("50" = "pink", "40" = "red", 
-                             "30" = "green", "20" = "blue")) + 
-  annotate("text", x=0.75, y=44, label= "C)") + 
-  theme(legend.title = element_text(color = "black", size = 9)) + 
-  theme(axis.title.x=element_blank()) + 
-  theme(axis.title.y=element_blank()) + 
-  coord_cartesian(ylim = c(20, 45))
-
+  coord_cartesian(ylim = c(30, 65))
 
 #Generate box plots
-figure <- ggarrange(bp1, bp2, bp3,
+figure <- ggarrange(bp1, bp2,
                     common.legend = TRUE,
                     legend = "bottom",
                     ncol=1, 
-                    nrow=3)
+                    nrow=2)
 
 # Annotate the figure by adding a common labels
 annotate_figure(figure,
